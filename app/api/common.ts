@@ -30,7 +30,10 @@ export async function requestOpenai(req: NextRequest) {
 
   console.log("[Proxy] ", path);
   console.log("[Base Url]", baseUrl);
-  console.log("[Org ID]", serverConfig.openaiOrgId);
+  // this fix [Org ID] undefined in server side if not using custom point
+  if (serverConfig.openaiOrgId !== undefined) {
+    console.log("[Org ID]", serverConfig.openaiOrgId);
+  }
 
   const timeoutId = setTimeout(
     () => {
@@ -81,7 +84,7 @@ export async function requestOpenai(req: NextRequest) {
       const jsonBody = JSON.parse(clonedBody) as { model?: string };
 
       // not undefined and is false
-      if (modelTable[jsonBody?.model ?? ""] === false) {
+      if (modelTable[jsonBody?.model ?? ""].available === false) {
         return NextResponse.json(
           {
             error: true,
